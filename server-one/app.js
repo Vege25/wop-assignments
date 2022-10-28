@@ -1,12 +1,20 @@
 "use strict";
 const express = require("express");
 const app = express();
+
+app.set("view engine", "pug");
+app.set("views", "./views");
+
 const port = 3000;
 
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.render("index");
+});
+
+app.get("/kokeilu", (req, res) => {
+  res.render("test");
 });
 
 app.get("/catinfo", (req, res) => {
