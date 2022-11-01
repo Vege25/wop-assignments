@@ -13,7 +13,13 @@ const users = [
     password: "qwer",
   },
 ];
+const getUser = (userID) => {
+  return users // ja lyhennetty tapa
+    .filter((user) => userID === user.id) // jos catID === catid -> palauta cat
+    .pop();
+};
 
 module.exports = {
   users,
+  getUser,
 };
