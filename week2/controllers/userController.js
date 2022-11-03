@@ -1,15 +1,17 @@
 "use strict";
-const { users, getUser } = require("../models/userModel");
+const { getUser, getAllUsers } = require("../models/userModel");
 
-//const cats = catModel.cats; Sama kuin ylempi
-
-const user_list_get = (req, res) => {
-  res.json(users);
+const user_list_get = async (req, res) => {
+  const kayttajat = await getAllUsers();
+  res.json(kayttajat);
 };
-const user_get = (req, res) => {
-  const user = getUser(req.params.id);
-  //console.log("kissa", cat);
-  res.json(user);
+const user_get = async (req, res) => {
+  const user = await getUser(req.params.id);
+  if (user.length > 0) {
+    res.json(user.pop());
+  } else {
+    res.send("virhe");
+  }
 };
 
 const user_post = (req, res) => {
