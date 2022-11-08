@@ -6,13 +6,17 @@ const {
   cat_list_get,
   cat_get,
   cat_post,
+  cat_put,
+  cat_delete,
 } = require("../controllers/catController");
 const router = express.Router();
 
-router.get("/", cat_list_get);
+router
+  .route("/")
+  .get(cat_list_get)
+  .post(upload.single("cat"), cat_post)
+  .put(cat_put);
 
-router.get("/:id", cat_get);
-
-router.post("/", upload.single("cat"), cat_post);
+router.route("/:id").get(cat_get).delete(cat_delete);
 
 module.exports = router;

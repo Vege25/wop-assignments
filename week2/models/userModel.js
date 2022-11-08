@@ -27,7 +27,20 @@ const getUser = async (userID) => {
   }
 };
 
+const addUser = async (data) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `INSERT INTO wop_user (name, email, password) VALUES (?, ?, ?);`,
+      data
+    );
+    return rows;
+  } catch (e) {
+    console.error("error", e.message);
+  }
+};
+
 module.exports = {
   getUser,
   getAllUsers,
+  addUser,
 };

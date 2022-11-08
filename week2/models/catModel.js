@@ -1,18 +1,20 @@
 // ./models/catModel.js
 "use strict";
 const pool = require("../database/db");
+const { httpError } = require("../utils/errors");
 const promisePool = pool.promise();
 
-const getAllCats = async () => {
+const getAllCats = async (next) => {
   try {
     // TODO: do the LEFT (or INNER) JOIN to get owner's name as ownername (from wop_user table).
     const [rows] = await promisePool.execute("SELECT * FROM wop_cat");
     return rows;
   } catch (e) {
-    console.error("error", e.message);
+    console.error("getAllCats", e.message);
+    next(httpError("Database error", 500));
   }
 };
-const getCat = async (catID) => {
+const getCat = async (catID, next) => {
   try {
     const [rows] = await promisePool.execute(
       `	
@@ -24,15 +26,41 @@ const getCat = async (catID) => {
     );
     return rows;
   } catch (e) {
-    console.error("error", e.message);
+    console.error("getCat", e.message);
+    next(httpError("Database error", 500));
   }
 };
 
-const addCat = async (data) => {
+const addCat = async (data, next) => {
   try {
     const [rows] = await promisePool.execute(
       `INSERT INTO wop_cat (name, birthdate, weight, owner, filename) VALUES (?, ?, ?, ?, ?);`,
       data
+    );
+    return rows;
+  } catch (e) {
+    console.error("addCat", e.message);
+    next(httpError("Database error", 500));
+  }
+};
+
+const updateCat = async (data) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `UPDATE wop_cat set name = ?, birthdate = ?, weight = ?, owner = ? WHERE cat_id = ?;`,
+      data
+    );
+    return rows;
+  } catch (e) {
+    console.error("error", e.message);
+  }
+};
+
+const deleteCat = async (catId) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `DELETE FROM wop_cat where cat_id = ?;`,
+      [catId]
     );
     return rows;
   } catch (e) {
@@ -44,4 +72,6 @@ module.exports = {
   getAllCats,
   getCat,
   addCat,
+  updateCat,
+  deleteCat,
 };
