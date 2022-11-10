@@ -6,10 +6,21 @@ const {
   updateCat,
   deleteCat,
 } = require("../models/catModel");
+const { validationResult } = require("express-validator");
+const { httpError } = require("../utils/errors");
 
 const cat_list_get = async (req, res, next) => {
-  const kissat = await getAllCats(next);
-  res.json(kissat);
+  try {
+    const cats = await getAllCats(next);
+    if (cats.length < 1) {
+      next(httpError("No cats found", 404));
+      return;
+    }
+    res.json(cats);
+  } catch (e) {
+    console.error("cat_list_get", e.message);
+    next(httpError("Internal server error", 500));
+  }
 };
 
 const cat_get = async (req, res, next) => {
@@ -22,54 +33,91 @@ const cat_get = async (req, res, next) => {
 };
 
 const cat_post = async (req, res, next) => {
-  console.log("cat_post", req.body, req.file);
-  const data = [
-    req.body.name,
-    req.body.birthdate,
-    req.body.weight,
-    req.body.owner,
-    req.file.filename,
-  ];
+  try {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
 
-  const result = await addCat(data, next);
-  if (result.affectedRows > 0) {
+    if (!errors.isEmpty()) {
+      // There are errors.
+      // Error messages can be returned in an array using `errors.array()`.
+      console.error("user_post validation", errors.array());
+      next(httpError("Invalid data", 400));
+      return;
+    }
+
+    console.log("cat_post", req.body, req.file);
+    const data = [
+      req.body.name,
+      req.body.birthdate,
+      req.body.weight,
+      req.body.owner,
+      req.file.filename,
+    ];
+
+    const result = await addCat(data, next);
+    if (result.affectedRows < 1) {
+      next(httpError("Invalid data", 400));
+      return;
+    }
     res.json({
       message: "cat added",
       cat_id: result.insertId,
     });
-  } else {
-    res.send("virhe");
+  } catch (e) {
+    console.error("cat_post", e.message);
+    next(httpError("Internal server error", 500));
   }
 };
 
 const cat_put = async (req, res, next) => {
-  console.log("cat_put", req.body);
-  const data = [
-    req.body.name,
-    req.body.birthdate,
-    req.body.weight,
-    req.body.owner,
-    req.body.id,
-  ];
+  try {
+    // Extract the validation errors from a request.
+    const errors = validationResult(req);
 
-  const result = await updateCat(data, next);
-  if (result.affectedRows > 0) {
+    if (!errors.isEmpty()) {
+      // There are errors.
+      // Error messages can be returned in an array using `errors.array()`.
+      console.error("user_post validation", errors.array());
+      next(httpError("Invalid data", 400));
+      return;
+    }
+
+    const data = [
+      req.body.name,
+      req.body.birthdate,
+      req.body.weight,
+      req.body.owner,
+      req.body.id,
+    ];
+
+    const result = await updateCat(data, next);
+    if (result.affectedRows < 1) {
+      next(httpError("No cat modified", 400));
+      return;
+    }
+
     res.json({
       message: "cat modified",
     });
-  } else {
-    res.send("virhe");
+  } catch (e) {
+    console.error("cat_put", e.message);
+    next(httpError("Internal server error", 500));
   }
 };
 
 const cat_delete = async (req, res, next) => {
-  const result = await deleteCat(req.params.id, next);
-  if (result.affectedRows > 0) {
+  try {
+    const result = await deleteCat(req.params.id, next);
+    if (result.affectedRows < 1) {
+      next(httpError("No cat deleted", 400));
+      return;
+    }
     res.json({
       message: "cat deleted",
     });
-  } else {
-    res.send("virhe");
+  } catch (e) {
+    console.error("delete", e.message);
+    next(httpError("Internal server error", 500));
   }
 };
 
