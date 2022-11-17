@@ -1,6 +1,5 @@
 "use strict";
 const express = require("express");
-const { body } = require("express-validator");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const {
@@ -10,6 +9,7 @@ const {
   cat_put,
   cat_delete,
 } = require("../controllers/catController");
+const { body } = require("express-validator");
 const router = express.Router();
 
 router
@@ -20,18 +20,18 @@ router
     body("name").isLength({ min: 1 }).escape(),
     body("birthdate").isDate(),
     body("weight").isNumeric(),
-    body("owner").isNumeric(),
     cat_post
-  )
+  );
+
+router
+  .route("/:id")
+  .get(cat_get)
+  .delete(cat_delete)
   .put(
     body("name").isLength({ min: 1 }).escape(),
     body("birthdate").isDate(),
     body("weight").isNumeric(),
-    body("owner").isNumeric(),
-    body("id").isNumeric(),
     cat_put
   );
-
-router.route("/:id").get(cat_get).delete(cat_delete);
 
 module.exports = router;

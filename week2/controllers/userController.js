@@ -103,6 +103,13 @@ const user_delete = async (req, res, next) => {
     next(httpError("Internal server error", 500));
   }
 };
+const check_token = (req, res, next) => {
+  if (!req.user) {
+    next(httpError("Token not valid", 403));
+  } else {
+    res.json({ user: req.user });
+  }
+};
 
 module.exports = {
   user_list_get,
@@ -110,4 +117,5 @@ module.exports = {
   user_post,
   user_put,
   user_delete,
+  check_token,
 };
