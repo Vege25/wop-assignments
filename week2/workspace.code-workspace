@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "wop-assignments",
+		"path": ".."
+	},
+	{
+		"name": "wop21-state-main",
+		"path": "../../../../Downloads/wop21-state-main"
+	}
+],
+  "settings": {}
+}
