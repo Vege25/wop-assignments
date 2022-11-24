@@ -18,7 +18,7 @@ const getCat = async (catID, next) => {
   try {
     const [rows] = await promisePool.execute(
       `	
-      SELECT cat_id, wop_cat.name, weight, owner, filename, birthdate, wop_user.name AS ownername
+      SELECT cat_id, wop_cat.name, weight, owner, filename, birthdate, coords, wop_user.name AS ownername
       FROM wop_cat INNER JOIN wop_user
       ON wop_cat.owner = wop_user.user_id
       WHERE cat_id = ?;`,
@@ -34,7 +34,7 @@ const getCat = async (catID, next) => {
 const addCat = async (data, next) => {
   try {
     const [rows] = await promisePool.execute(
-      `INSERT INTO wop_cat (name, birthdate, weight, owner, filename) VALUES (?, ?, ?, ?, ?);`,
+      `INSERT INTO wop_cat (name, birthdate, weight, owner, filename, coords) VALUES (?, ?, ?, ?, ?, ?);`,
       data
     );
     return rows;
@@ -70,7 +70,6 @@ const deleteCat = async (catId, user, next) => {
     let sql = "DELETE FROM wop_cat where cat_id = ?";
     const params = [];
     if (user.role === 0) {
-      sql += ";";
       params.push(catId);
     } else {
       sql += " AND owner = ?;";
